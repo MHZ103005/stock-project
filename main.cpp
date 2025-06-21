@@ -18,6 +18,7 @@ int main()
     p.printList();
     p.removeAsset("Goo");
     p.printList();
+    std::cout << "PENIS" << std::endl;
     delete stock;
     delete s;
 }
