@@ -7,14 +7,15 @@
 class Portfolio
 {
 private:
-    std::vector<Asset *> assets;
+    std::vector<Asset> assets;
 
 public:
     Portfolio();
     ~Portfolio();
 
-    void addAsset(Asset *a);
+    void addAsset(const Asset &a);
     bool removeAsset(const std::string &a);
-    float getValue() const;
+
     void printList() const;
+    void getPrice() const;
 };

@@ -20,12 +20,12 @@ def fetchPrices(inFile = "tickers.txt", outFile = "prices.txt"):
                 price = stock.history(period = "1d")["Close"].iloc[-1] #API call
                 out.write(f"{price}\n") #write the price in a new line in output file
             except:
-                out.write("Ticker does not exist!") #error handling
+                out.write("F") #error handling, if read as F ticker does not exist.
 
 
 class FileWatcher(FileSystemEventHandler): #File watcher from watchdog, only action is file is modified
     def on_modified(self, event):
-        if event.src_path.endswith("tickers.txt"):
+        if event.src_path.endswith("tickers.txt"): #if tickers.txt is modified, fetch prices
             print("Calling API")
             fetchPrices()
             print("File updated")
