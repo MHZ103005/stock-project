@@ -11,6 +11,8 @@ int main()
     Portfolio p;
     Stock s("GOOG", 10, 150);
     p.addAsset(s);
+    Stock s2("AAPL", 10, 160);
+    p.addAsset(s2);
     p.getPrice();
 
     return 0;

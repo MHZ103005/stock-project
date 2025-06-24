@@ -9,21 +9,21 @@ class Asset
 {
 protected:
     std::string ticker;
-    int quantity;
+    float quantity;
     double price;
 
 public:
     Asset();
-    Asset(const std::string &t, int q, double p);
+    Asset(const std::string &t, float q, double p);
 
     virtual ~Asset();
 
     const std::string &getTicker() const;
-    int getQuantity() const;
+    float getQuantity() const;
     double getPrice() const;
 
     void setTicker(const std::string &newTicker);
-    void setQuantity(int newQuantity);
+    void setQuantity(float newQuantity);
     void setPrice(double newPrice);
 };
 

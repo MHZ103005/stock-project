@@ -5,6 +5,8 @@
 #include <string.h>
 #include <algorithm>
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 #include "stock.h" // files
 #include "portfolio.h"
@@ -50,17 +52,23 @@ void Portfolio::getPrice() const
         tick += " ";
     }
     Myfile << tick;
-    std::cout << tick << std::endl;
+    // std::cout << tick << std::endl;
     Myfile.close();
+
+    // pause while waiting for API
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 
     Myfile.open("prices.txt");
     std::string priceStr;
+    float totalValue = 0;
     for (const auto &asset : this->assets)
     {
         std::getline(Myfile, priceStr);
         float price = std::stof(priceStr);
         std::cout << asset.getTicker() << " is currently at " << price << std::endl;
+        totalValue += price * asset.getQuantity();
     }
+    std::cout << "Your portfolio is currently worth $" << totalValue << std::endl;
     Myfile.close();
 }
 
