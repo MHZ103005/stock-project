@@ -5,7 +5,7 @@
 #include <string>
 
 // Constructor and Destructor
-Stock::Stock(const std::string &t, int q, double p)
+Stock::Stock(const std::string &t, float q, double p)
     : Asset(t, q, p) {}
 Stock::~Stock() = default;
 

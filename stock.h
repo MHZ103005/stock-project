@@ -11,7 +11,7 @@ private:
     std::string companyName;
 
 public:
-    Stock(const std::string &t, int q, double p);
+    Stock(const std::string &t, float q, double p);
     ~Stock();
 
     void printInfo() const; // debugging
