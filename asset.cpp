@@ -5,7 +5,7 @@
 // Constructor and Destructor
 Asset::Asset() {}
 Asset::Asset(const std::string &t, float q, double p)
-    : ticker(t), quantity(q), price(p) {}
+    : ticker(t), quantity(q), price(p), buyValue(q * p) {}
 
 Asset::~Asset() = default;
 

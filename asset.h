@@ -11,6 +11,7 @@ protected:
     std::string ticker;
     float quantity;
     double price;
+    float buyValue;
 
 public:
     Asset();

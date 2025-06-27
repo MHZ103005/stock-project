@@ -7,11 +7,45 @@
 #include <chrono>
 #include "stock.h"
 #include "portfolio.h"
+#include "sqlite3.h"
 
 bool tickerExists(const std::string &ticker);
 
 int main()
 {
+    sqlite3 *db;
+    int exit = sqlite3_open("portfolio.db", &db);
+
+    if (exit)
+    {
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
+        return exit;
+    }
+    else
+    {
+        std::cout << "Database opened successfully!" << std::endl;
+    }
+
+    const char *sql = "CREATE TABLE IF NOT EXISTS assets ("
+                      "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                      "ticker TEXT NOT NULL, "
+                      "quantity REAL NOT NULL, "
+                      "price REAL NOT NULL);";
+
+    char *errMsg;
+    if (sqlite3_exec(db, sql, 0, 0, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "SQL error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "Table created successfully!" << std::endl;
+    }
+
+    sqlite3_close(db);
+    return 0;
+
     std::string input;
     bool portfolioCreated = false;
     Portfolio portfolio;
@@ -93,8 +127,6 @@ int main()
         {
             std::cout << "Please enter a valid command, or type help for a list of commands." << std::endl;
         }
-
-        
     }
     std::cout << "THanks for using my portfolio service" << std::endl;
     return 0;
