@@ -1,0 +1,147 @@
+#include "sqlfunc.h"
+
+bool tickerExists(const std::string &ticker)
+{
+    std::fstream file("tickers.txt");
+    file << ticker << std::endl;
+    file.close();
+
+    std::this_thread::sleep_for(std::chrono::seconds(3)); // Simulate waiting for API response
+    file.open("prices.txt");
+    std::string line;
+    std::getline(file, line);
+    file.close();
+    if (line == "F")
+    {
+        return false;
+    }
+
+    return true;
+}
+
+// Insert functions
+void insertUser(sqlite3 *db, const std::string &username, double balance = 10000.0)
+{
+    std::string sql = "INSERT INTO users (username, balance) VALUES ('" +
+                      username + "', " + std::to_string(balance) + ");";
+
+    char *errMsg;
+    if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Insert user failed: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "✅ User inserted: " << username << std::endl;
+    }
+}
+
+void insertAsset(sqlite3 *db, int userId, const std::string &ticker, double quantity)
+{
+    std::string sql = "INSERT INTO assets (user_id, ticker, quantity, price) VALUES (" +
+                      std::to_string(userId) + ", '" + ticker + "', " +
+                      std::to_string(quantity) + ");";
+
+    char *errMsg;
+    if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Insert asset failed: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "Asset inserted: " << ticker << " for user " << userId << std::endl;
+    }
+}
+
+void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::string &action, double quantity, double price)
+{
+    std::string sql = "INSERT INTO trades (user_id, ticker, action, quantity, price) VALUES (" +
+                      std::to_string(userId) + ", '" + ticker + "', '" + action + "', " +
+                      std::to_string(quantity) + ", " + std::to_string(price) + ");";
+
+    char *errMsg;
+    if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Insert trade failed: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "Trade recorded: " << action << " " << ticker << std::endl;
+    }
+}
+
+void retrieveAsset(sqlite3 *db, const std::string &ticker)
+{
+}
+
+int callback(void *data, int argc, char **argv, char **azColName)
+{
+    for (int i = 0; i < argc; i++)
+    {
+        std::cout << azColName[i] << ": " << (argv[i] ? argv[i] : "NULL") << std::endl;
+    }
+    std::cout << std::endl;
+    return 0;
+}
+
+// initial database setup
+void initializeDatabase(sqlite3 *db)
+{
+    // Table that stores user information
+    // Username corresponds to ID in assets and trades tables
+    const char *usersTable = R"( 
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            balance REAL DEFAULT 10000.0
+        );
+    )";
+    // Addets based on user ID
+    const char *assetsTable = R"(
+        CREATE TABLE IF NOT EXISTS assets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            ticker TEXT NOT NULL,
+            quantity REAL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    )";
+    // Trades based on user ID
+    const char *tradesTable = R"(
+        CREATE TABLE IF NOT EXISTS trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            ticker TEXT,
+            action TEXT,
+            quantity REAL,
+            price REAL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    )";
+
+    char *errMsg = nullptr;
+
+    // Run each table creation command
+    if (sqlite3_exec(db, usersTable, nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Users table error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+
+    if (sqlite3_exec(db, assetsTable, nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Assets table error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+
+    if (sqlite3_exec(db, tradesTable, nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Trades table error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+
+    std::cout << "Database initialized with users, assets, and trades tables.\n";
+}
