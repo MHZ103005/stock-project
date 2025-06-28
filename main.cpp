@@ -41,6 +41,20 @@ int main()
         std::cout << "Data selected successfully!" << std::endl;
     }
 
+    insertUser(db, "testuser", 10000.0); // insert a test user into the database
+    std::cout << "D" << std::endl;
+    if (checkUsername(db, "testuser")) // check if the user exists
+    {
+        std::cout << "User exists in the database." << std::endl;
+    }
+    else
+    {
+        std::cout << "User does not exist in the database." << std::endl;
+    }
+    std::cout << "H" << std::endl;
+    return 0;
+    // Game variables
+
     // Game loop
     while (true)
     {

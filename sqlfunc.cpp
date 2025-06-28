@@ -20,7 +20,7 @@ bool tickerExists(const std::string &ticker)
 }
 
 // Insert functions
-void insertUser(sqlite3 *db, const std::string &username, double balance = 10000.0)
+void insertUser(sqlite3 *db, const std::string &username, double balance)
 {
     std::string sql = "INSERT INTO users (username, balance) VALUES ('" +
                       username + "', " + std::to_string(balance) + ");";
@@ -73,8 +73,24 @@ void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::
     }
 }
 
-void retrieveAsset(sqlite3 *db, const std::string &ticker)
+bool checkUsername(sqlite3 *db, const std::string &username)
 {
+    std::string sql = "SELECT 1 FROM users WHERE username = '" + username + "';";
+    char *errMsg = nullptr;
+    bool found = false;
+
+    auto callback = [](void *data, int, char **, char **) -> int { // Callback function returns true if username exists
+        *static_cast<bool *>(data) = true;
+        return 0;
+    };
+
+    if (sqlite3_exec(db, sql.c_str(), callback, &found, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "SQL error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+        return false;
+    }
+    return found;
 }
 
 int callback(void *data, int argc, char **argv, char **azColName)
