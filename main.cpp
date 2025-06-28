@@ -10,11 +10,21 @@
 #include "sqlite3.h"
 
 bool tickerExists(const std::string &ticker);
+int callback(void *data, int argc, char **argv, char **azColName)
+{
+    for (int i = 0; i < argc; i++)
+    {
+        std::cout << azColName[i] << ": " << (argv[i] ? argv[i] : "NULL") << std::endl;
+    }
+    std::cout << std::endl;
+    return 0;
+}
 
 int main()
 {
+    // Initialize SQLite database
     sqlite3 *db;
-    int exit = sqlite3_open("portfolio.db", &db);
+    int exit = sqlite3_open("portfolio.db", &db); // create database file
 
     if (exit)
     {
@@ -25,7 +35,7 @@ int main()
     {
         std::cout << "Database opened successfully!" << std::endl;
     }
-
+    // create table inside database
     const char *sql = "CREATE TABLE IF NOT EXISTS assets ("
                       "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                       "ticker TEXT NOT NULL, "
@@ -43,7 +53,18 @@ int main()
         std::cout << "Table created successfully!" << std::endl;
     }
 
-    sqlite3_close(db);
+    const char *selectSql = "SELECT * FROM assets;";
+    if (sqlite3_exec(db, selectSql, callback, 0, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "SQL error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "Data selected successfully!" << std::endl;
+    }
+
+    sqlite3_close(db); // close database connection
     return 0;
 
     std::string input;
