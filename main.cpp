@@ -1,14 +1,14 @@
 #ifndef MAIN
 #define MAIN
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <thread>
-#include <chrono>
-#include "stock.h"
 #include "portfolio.h"
-#include "sqlite3.h"
 #include "sqlfunc.h"
+#include "sqlite3.h"
+#include "stock.h"
+#include <chrono>
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
+#include <thread>
 
 int main()
 {
@@ -28,20 +28,7 @@ int main()
     // create table inside database
     initializeDatabase(db);
 
-    // example of selecting
-    char *errMsg = 0;
-    const char *selectSql = "SELECT * FROM assets;";
-    if (sqlite3_exec(db, selectSql, callback, 0, &errMsg) != SQLITE_OK)
-    {
-        std::cerr << "SQL error: " << errMsg << std::endl;
-        sqlite3_free(errMsg);
-    }
-    else
-    {
-        std::cout << "Data selected successfully!" << std::endl;
-    }
-
-    insertUser(db, "testuser", 10000.0); // insert a test user into the database
+    // insertUser(db, "testuser", 10000.0); // insert a test user into the database
     std::cout << "D" << std::endl;
     if (checkUsername(db, "testuser")) // check if the user exists
     {
@@ -52,6 +39,21 @@ int main()
         std::cout << "User does not exist in the database." << std::endl;
     }
     std::cout << "H" << std::endl;
+
+    insertAsset(db, 1, "AAPL", 10.0);
+    insertAsset(db, 1, "GOOGL", 5.0);
+    std::cout << "H" << std::endl;
+    std::vector<std::string> tickers;
+    std::vector<double> amounts;
+    loadPortfolio(db, 1, tickers, amounts);
+    for (std::string tick : tickers)
+    {
+        std::cout << tick << std::endl;
+    }
+    for (double amount : amounts)
+    {
+        std::cout << amount << std::endl;
+    }
     return 0;
     // Game variables
 

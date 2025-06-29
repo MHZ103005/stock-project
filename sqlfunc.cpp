@@ -22,8 +22,8 @@ bool tickerExists(const std::string &ticker)
 // Insert functions
 void insertUser(sqlite3 *db, const std::string &username, double balance)
 {
-    std::string sql = "INSERT INTO users (username, balance) VALUES ('" +
-                      username + "', " + std::to_string(balance) + ");";
+    std::string sql =
+        "INSERT INTO users (username, balance) VALUES ('" + username + "', " + std::to_string(balance) + ");";
 
     char *errMsg;
     if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
@@ -39,9 +39,8 @@ void insertUser(sqlite3 *db, const std::string &username, double balance)
 
 void insertAsset(sqlite3 *db, int userId, const std::string &ticker, double quantity)
 {
-    std::string sql = "INSERT INTO assets (user_id, ticker, quantity, price) VALUES (" +
-                      std::to_string(userId) + ", '" + ticker + "', " +
-                      std::to_string(quantity) + ");";
+    std::string sql = "INSERT INTO assets (user_id, ticker, quantity) VALUES (" + std::to_string(userId) + ", '" +
+                      ticker + "', " + std::to_string(quantity) + ");";
 
     char *errMsg;
     if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
@@ -55,11 +54,12 @@ void insertAsset(sqlite3 *db, int userId, const std::string &ticker, double quan
     }
 }
 
-void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::string &action, double quantity, double price)
+void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::string &action, double quantity,
+                 double price)
 {
     std::string sql = "INSERT INTO trades (user_id, ticker, action, quantity, price) VALUES (" +
-                      std::to_string(userId) + ", '" + ticker + "', '" + action + "', " +
-                      std::to_string(quantity) + ", " + std::to_string(price) + ");";
+                      std::to_string(userId) + ", '" + ticker + "', '" + action + "', " + std::to_string(quantity) +
+                      ", " + std::to_string(price) + ");";
 
     char *errMsg;
     if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
@@ -72,7 +72,7 @@ void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::
         std::cout << "Trade recorded: " << action << " " << ticker << std::endl;
     }
 }
-
+// checks if username exists currently
 bool checkUsername(sqlite3 *db, const std::string &username)
 {
     std::string sql = "SELECT 1 FROM users WHERE username = '" + username + "';";
@@ -93,14 +93,28 @@ bool checkUsername(sqlite3 *db, const std::string &username)
     return found;
 }
 
-int callback(void *data, int argc, char **argv, char **azColName)
+void loadPortfolio(sqlite3 *db, int userid, std::vector<std::string> &tickers, std::vector<double> &quantities)
 {
-    for (int i = 0; i < argc; i++)
+    std::string sql = "SELECT ticker, quantity FROM assets where user_id = " + std::to_string(userid) + ";";
+    char *errMsg = nullptr;
+
+    auto callback = [](void *data, int argc, char **argv, char **colNames) -> int {
+        auto *resultPair = static_cast<std::pair<std::vector<std::string> *, std::vector<double> *> *>(data);
+        if (argv[0] && argv[1])
+        {
+            resultPair->first->emplace_back(argv[0]);
+            resultPair->second->emplace_back(std::stod(argv[1]));
+        }
+        return 0;
+    };
+    // creat the pair
+    std::pair<std::vector<std::string> *, std::vector<double> *> resultPair(&tickers, &quantities);
+
+    if (sqlite3_exec(db, sql.c_str(), callback, &resultPair, &errMsg) != SQLITE_OK)
     {
-        std::cout << azColName[i] << ": " << (argv[i] ? argv[i] : "NULL") << std::endl;
+        std::cerr << "portfolioerror " << errMsg << std::endl;
+        sqlite3_free(errMsg);
     }
-    std::cout << std::endl;
-    return 0;
 }
 
 // initial database setup

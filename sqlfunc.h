@@ -4,6 +4,7 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <vector>
 
 #ifndef SQLFUNC_H
 #define SQLFUNC_H
@@ -16,6 +17,7 @@ void insertAsset(sqlite3 *db, int userId, const std::string &ticker, double quan
 void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::string &action, double quantity, double price);
 // query functions
 bool checkUsername(sqlite3 *db, const std::string &username); // reads username from database
+void loadPortfolio(sqlite3 *db, int userid, std::vector<std::string> &tickers, std::vector<double> &quantities); // loads portfolio for user
 
 int callback(void *data, int argc, char **argv, char **azColName); // used for reading from database
 void retrieveAsset(sqlite3 *db, const std::string &ticker);        // retrieves asset from database
