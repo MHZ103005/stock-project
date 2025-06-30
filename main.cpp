@@ -38,7 +38,6 @@ int main()
     {
         std::cout << "User does not exist in the database." << std::endl;
     }
-    std::cout << "H" << std::endl;
 
     insertAsset(db, 1, "AAPL", 10.0);
     insertAsset(db, 1, "GOOGL", 5.0);

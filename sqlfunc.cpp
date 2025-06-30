@@ -92,7 +92,7 @@ bool checkUsername(sqlite3 *db, const std::string &username)
     }
     return found;
 }
-
+// loads all portfolio assets into vectors
 void loadPortfolio(sqlite3 *db, int userid, std::vector<std::string> &tickers, std::vector<double> &quantities)
 {
     std::string sql = "SELECT ticker, quantity FROM assets where user_id = " + std::to_string(userid) + ";";
@@ -115,6 +115,24 @@ void loadPortfolio(sqlite3 *db, int userid, std::vector<std::string> &tickers, s
         std::cerr << "portfolioerror " << errMsg << std::endl;
         sqlite3_free(errMsg);
     }
+}
+// print purchase history
+void printPurchaseLog(sqlite3 *db, int userid)
+{
+    std::string sql = "SELECT * FROM trades where user_id = " + std::to_string(userid) + ";";
+    char *errMsg = nullptr;
+
+    std::cout << "Here is your purchase log" << std::endl << std::endl;
+
+    auto callback = [](void *data, int argc, char **argv, char **colNames) -> int {
+        int *d = static_cast<int *>(data);
+        *d += 1;
+        std::cout << d << std::endl;
+        for (int i = 0; i < argc; i++)
+        {
+            std::cout << argv[i] << "     " << std::endl;
+        }
+    };
 }
 
 // initial database setup

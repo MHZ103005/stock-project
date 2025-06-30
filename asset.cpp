@@ -3,9 +3,15 @@
 #include <string>
 
 // Constructor and Destructor
-Asset::Asset() {}
-Asset::Asset(const std::string &t, float q, double p)
-    : ticker(t), quantity(q), price(p), buyValue(q * p) {}
+Asset::Asset()
+{
+}
+Asset::Asset(const std::string &t, double q) : ticker(t), quantity(q)
+{
+} // constructor for loading from portfolio
+Asset::Asset(const std::string &t, double q, double p) : ticker(t), quantity(q), price(p), buyValue(q * p)
+{
+}
 
 Asset::~Asset() = default;
 
@@ -14,7 +20,7 @@ const std::string &Asset::getTicker() const
 {
     return ticker;
 }
-float Asset::getQuantity() const
+double Asset::getQuantity() const
 {
     return quantity;
 }
@@ -27,7 +33,7 @@ void Asset::setTicker(const std::string &newTicker)
 {
     ticker = newTicker;
 }
-void Asset::setQuantity(float newQuantity)
+void Asset::setQuantity(double newQuantity)
 {
     quantity = newQuantity;
 }
