@@ -72,6 +72,29 @@ void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::
         std::cout << "Trade recorded: " << action << " " << ticker << std::endl;
     }
 }
+int retrieveUserID(sqlite3 *db, const std::string &username)
+{
+    std::string sql = "SELECT id FROM users WHERE username = '" + username + "';";
+    char *errMsg = nullptr;
+    int userId = -1; // Default to -1 if not found
+
+    auto callback = [](void *data, int argc, char **argv, char **) -> int
+    {
+        int *id = static_cast<int *>(data);
+        if (argc > 0 && argv[0])
+        {
+            *id = std::stoi(argv[0]);
+        }
+        return 0;
+    };
+
+    if (sqlite3_exec(db, sql.c_str(), callback, &userId, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "SQL error: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    return userId;
+}
 // checks if username exists currently
 bool checkUsername(sqlite3 *db, const std::string &username)
 {
@@ -98,7 +121,8 @@ void loadPortfolio(sqlite3 *db, int userid, std::vector<std::string> &tickers, s
     std::string sql = "SELECT ticker, quantity FROM assets where user_id = " + std::to_string(userid) + ";";
     char *errMsg = nullptr;
 
-    auto callback = [](void *data, int argc, char **argv, char **colNames) -> int {
+    auto callback = [](void *data, int argc, char **argv, char **colNames) -> int
+    {
         auto *resultPair = static_cast<std::pair<std::vector<std::string> *, std::vector<double> *> *>(data);
         if (argv[0] && argv[1])
         {
@@ -122,17 +146,32 @@ void printPurchaseLog(sqlite3 *db, int userid)
     std::string sql = "SELECT * FROM trades where user_id = " + std::to_string(userid) + ";";
     char *errMsg = nullptr;
 
-    std::cout << "Here is your purchase log" << std::endl << std::endl;
+    std::cout << "Here is your purchase log" << std::endl
+              << std::endl;
 
-    auto callback = [](void *data, int argc, char **argv, char **colNames) -> int {
+    auto callback = [](void *data, int argc, char **argv, char **colNames) -> int
+    {
         int *d = static_cast<int *>(data);
         *d += 1;
-        std::cout << d << std::endl;
-        for (int i = 0; i < argc; i++)
+        std::cout << *d << "       ";
+        for (int i = 2; i < argc; i++)
         {
-            std::cout << argv[i] << "     " << std::endl;
+            std::cout << argv[i] << "     ";
         }
+        return 0;
+        std::cout << std::endl;
     };
+
+    int rowCount = 0; // to count rows
+    if (sqlite3_exec(db, sql.c_str(), callback, &rowCount, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Error printing purchase log: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "Total trades: " << rowCount << std::endl;
+    }
 }
 
 // initial database setup

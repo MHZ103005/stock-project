@@ -39,20 +39,9 @@ int main()
         std::cout << "User does not exist in the database." << std::endl;
     }
 
-    insertAsset(db, 1, "AAPL", 10.0);
-    insertAsset(db, 1, "GOOGL", 5.0);
+    insertTrade(db, 1, "GOOG", "buy", 10, 150.0); // insert a test trade into the database
     std::cout << "H" << std::endl;
-    std::vector<std::string> tickers;
-    std::vector<double> amounts;
-    loadPortfolio(db, 1, tickers, amounts);
-    for (std::string tick : tickers)
-    {
-        std::cout << tick << std::endl;
-    }
-    for (double amount : amounts)
-    {
-        std::cout << amount << std::endl;
-    }
+    printPurchaseLog(db, 1); // print the purchase log for the user
     return 0;
     // Game variables
 
