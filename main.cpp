@@ -10,6 +10,49 @@
 #include <stdio.h>
 #include <thread>
 
+void printAllUsers(sqlite3 *db)
+{
+    const char *sql = "SELECT id, username FROM users;";
+    auto callback = [](void *, int argc, char **argv, char **) -> int
+    {
+        std::cout << "User ID: " << argv[0] << ", Username: " << argv[1] << std::endl;
+        return 0;
+    };
+
+    char *errMsg = nullptr;
+    if (sqlite3_exec(db, sql, callback, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Failed to print users: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+}
+
+void printAllAssets(sqlite3 *db)
+{
+    const char *sql = "SELECT id, user_id, ticker, quantity FROM assets;";
+
+    auto callback = [](void *, int argc, char **argv, char **) -> int
+    {
+        std::cout << "Asset ID: " << (argv[0] ? argv[0] : "NULL")
+                  << " | User ID: " << (argv[1] ? argv[1] : "NULL")
+                  << " | Ticker: " << (argv[2] ? argv[2] : "NULL")
+                  << " | Quantity: " << (argv[3] ? argv[3] : "NULL")
+                  << std::endl;
+        return 0;
+    };
+
+    char *errMsg = nullptr;
+    if (sqlite3_exec(db, sql, callback, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "[ERROR] Failed to print assets: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    else
+    {
+        std::cout << "[INFO] Printed all assets successfully.\n";
+    }
+}
+
 int main()
 {
     // Initialize SQLite database
@@ -30,6 +73,8 @@ int main()
 
     // Game variables
     Portfolio portfolio; // create portfolio object
+    printAllUsers(db);   // print all users in database
+    printAllAssets(db);  // print all assets for user with ID 4
 
     // Ask for username, if already exists load data
     std::string username;
@@ -48,6 +93,7 @@ int main()
         std::vector<std::string> tickers;
         std::vector<double> quantities;
         loadPortfolio(db, userid, tickers, quantities);
+        std::cout << tickers.size() << std::endl;
         for (int i = 0; i < tickers.size(); i++)
         {
             portfolio.addAsset(Asset(tickers[i], quantities[i])); // add assets to portfolio
@@ -177,6 +223,7 @@ int main()
         default:
         {
             std::cout << "Invalid choice! Please try again." << std::endl;
+            break;
         }
         }
     }

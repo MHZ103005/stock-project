@@ -6,7 +6,7 @@ bool tickerExists(const std::string &ticker)
     file << ticker << std::endl;
     file.close();
 
-    std::this_thread::sleep_for(std::chrono::seconds(3)); // Simulate waiting for API response
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Simulate waiting for API response
     file.open("prices.txt");
     std::string line;
     std::getline(file, line);
@@ -33,7 +33,7 @@ void insertUser(sqlite3 *db, const std::string &username, double balance)
     }
     else
     {
-        std::cout << "✅ User inserted: " << username << std::endl;
+        std::cout << "User inserted: " << username << std::endl;
     }
 }
 
@@ -136,11 +136,9 @@ void loadPortfolio(sqlite3 *db, int userid, std::vector<std::string> &tickers, s
     auto callback = [](void *data, int argc, char **argv, char **colNames) -> int
     {
         auto *resultPair = static_cast<std::pair<std::vector<std::string> *, std::vector<double> *> *>(data);
-        if (argv[0] && argv[1])
-        {
-            resultPair->first->emplace_back(argv[0]);
-            resultPair->second->emplace_back(std::stod(argv[1]));
-        }
+        resultPair->first->emplace_back(argv[0]);
+        resultPair->second->emplace_back(std::stod(argv[1]));
+
         return 0;
     };
     // creat the pair
@@ -161,7 +159,7 @@ void printPurchaseLog(sqlite3 *db, int userid)
     std::cout << "Here is your purchase log" << std::endl
               << std::endl;
 
-    std::cout << "Trade ID   Ticker   Action   Quantity   Price" << std::endl;
+    std::cout << "#   Ticker   Action   Quantity   Price" << std::endl;
     std::cout << "--------------------------------------------------------" << std::endl;
 
     auto callback = [](void *data, int argc, char **argv, char **colNames) -> int
