@@ -10,24 +10,56 @@
 
 #include "stock.h" // files
 #include "portfolio.h"
+#include "asset.h"
 
 Portfolio::Portfolio() {}; // only default constructor
 
 Portfolio::~Portfolio() = default;
+
+std::vector<Asset> &Portfolio::getAssets()
+{
+    return this->assets;
+}
 
 void Portfolio::addAsset(const Asset &a)
 {
     assets.push_back(a);
 }
 
-bool Portfolio::removeAsset(const std::string &ticker)
+void Portfolio::removeAsset(const std::string &ticker)
 {
     for (size_t i = 0; i < assets.size(); i++)
     {
         if (assets[i].getTicker() == ticker) // remove if ticker matches
         {
             assets.erase(assets.begin() + i);
-            return true;
+            return;
+        }
+    }
+    return;
+}
+
+bool Portfolio::updateAmount(const std::string &ticker, double quantity)
+{
+    for (auto &asset : assets)
+    {
+        if (asset.getTicker() == ticker) // update quantity if ticker matches
+        {
+            if (asset.getQuantity() + quantity < 0) // check if quantity is negative
+            {
+                std::cout << "You do not own this much!" << std::endl;
+                return false;
+            }
+            else if (asset.getQuantity() + quantity == 0) // if quantity is 0, remove asset
+            {
+                removeAsset(ticker);
+                return true;
+            }
+            else // update quantity
+            {
+                asset.setQuantity(asset.getQuantity() + quantity);
+                return true;
+            }
         }
     }
     return false;
@@ -46,7 +78,7 @@ void Portfolio::getPrice() const
 {
     std::fstream Myfile("tickers.txt");
     std::string tick = ""; // add all tickers into one big string before updating file
-    for (const auto &asset : this->assets)
+    for (const Asset &asset : this->assets)
     {
         tick += asset.getTicker();
         tick += " ";
@@ -61,7 +93,7 @@ void Portfolio::getPrice() const
     Myfile.open("prices.txt");
     std::string priceStr;
     float totalValue = 0;
-    for (const auto &asset : this->assets)
+    for (const Asset &asset : this->assets)
     {
         std::getline(Myfile, priceStr);
         float price = std::stof(priceStr);

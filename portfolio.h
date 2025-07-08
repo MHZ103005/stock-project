@@ -13,8 +13,10 @@ public:
     Portfolio();
     ~Portfolio();
 
+    std::vector<Asset> &getAssets();
     void addAsset(const Asset &a);
-    bool removeAsset(const std::string &a);
+    void removeAsset(const std::string &a);
+    bool updateAmount(const std::string &ticker, double quantity);
 
     void printList() const;
     void getPrice() const;

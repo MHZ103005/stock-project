@@ -1,6 +1,9 @@
 #include "asset.h"
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <thread>
+#include <chrono>
 
 // Constructor and Destructor
 Asset::Asset()
@@ -40,4 +43,24 @@ void Asset::setQuantity(double newQuantity)
 void Asset::setPrice(double newPrice)
 { // maybe remove denpending on api
     price = newPrice;
+}
+
+double Asset::findPrice()
+{
+    std::fstream Myfile("tickers.txt");
+    Myfile << ticker;
+    Myfile.close();
+    // pause while waiting for API
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    Myfile.open("prices.txt");
+    std::string priceStr;
+    std::getline(Myfile, priceStr);
+    Myfile.close();
+    if (priceStr == "F")
+    {
+        std::cerr << "Error: Invalid ticker or price not found." << std::endl;
+        return 0.0;
+    }
+    price = std::stod(priceStr);
+    return price;
 }

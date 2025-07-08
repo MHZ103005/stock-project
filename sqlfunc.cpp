@@ -53,6 +53,18 @@ void insertAsset(sqlite3 *db, int userId, const std::string &ticker, double quan
         std::cout << "Asset inserted: " << ticker << " for user " << userId << std::endl;
     }
 }
+// could optimize this by updating the table instead of deleting and inserting
+void deleteAssets(sqlite3 *db, int userId)
+{
+    std::string sql = "DELETE FROM assets WHERE user_id = " + std::to_string(userId) + ";";
+
+    char *errMsg;
+    if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK)
+    {
+        std::cerr << "Delete asset failed: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+}
 
 void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::string &action, double quantity,
                  double price)
@@ -149,6 +161,9 @@ void printPurchaseLog(sqlite3 *db, int userid)
     std::cout << "Here is your purchase log" << std::endl
               << std::endl;
 
+    std::cout << "Trade ID   Ticker   Action   Quantity   Price" << std::endl;
+    std::cout << "--------------------------------------------------------" << std::endl;
+
     auto callback = [](void *data, int argc, char **argv, char **colNames) -> int
     {
         int *d = static_cast<int *>(data);
@@ -158,8 +173,8 @@ void printPurchaseLog(sqlite3 *db, int userid)
         {
             std::cout << argv[i] << "     ";
         }
-        return 0;
         std::cout << std::endl;
+        return 0;
     };
 
     int rowCount = 0; // to count rows

@@ -14,6 +14,7 @@ bool tickerExists(const std::string &ticker); // Checks if Ticker is a real stoc
 // insert functions
 void insertUser(sqlite3 *db, const std::string &username, double balance = 10000.0); // inserts into users table
 void insertAsset(sqlite3 *db, int userId, const std::string &ticker, double quantity);
+void deleteAssets(sqlite3 *db, int userId);
 void insertTrade(sqlite3 *db, int userId, const std::string &ticker, const std::string &action, double quantity,
                  double price);
 // query functions

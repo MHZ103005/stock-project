@@ -7,26 +7,28 @@
 
 class Asset
 {
-  protected:
-    std::string ticker;
-    double quantity;
-    double price;
-    double buyValue;
+protected:
+  std::string ticker;
+  double quantity;
+  double price;
+  double buyValue;
 
-  public:
-    Asset();
-    Asset(const std::string &t, double q);
-    Asset(const std::string &t, double q, double p);
+public:
+  Asset();
+  Asset(const std::string &t, double q);
+  Asset(const std::string &t, double q, double p);
 
-    virtual ~Asset();
+  virtual ~Asset();
 
-    const std::string &getTicker() const;
-    double getQuantity() const;
-    double getPrice() const;
+  const std::string &getTicker() const;
+  double getQuantity() const;
+  double getPrice() const;
 
-    void setTicker(const std::string &newTicker);
-    void setQuantity(double newQuantity);
-    void setPrice(double newPrice);
+  double findPrice();
+
+  void setTicker(const std::string &newTicker);
+  void setQuantity(double newQuantity);
+  void setPrice(double newPrice);
 };
 
 #endif
